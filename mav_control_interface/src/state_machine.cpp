@@ -16,6 +16,7 @@
 */
 
 #include <mav_msgs/default_topics.h>
+#include <asctec_hl_comm/mav_ctrl.h>
 #include <std_msgs/String.h>
 #include <tf_conversions/tf_eigen.h>
 
@@ -33,6 +34,9 @@ StateMachineDefinition::StateMachineDefinition(const ros::NodeHandle& nh, const 
 {
   command_publisher_ = nh_.advertise<mav_msgs::RollPitchYawrateThrust>(
       mav_msgs::default_topics::COMMAND_ROLL_PITCH_YAWRATE_THRUST, 1);
+
+  command_publisher_asctec_ = nh_.advertise<asctec_hl_comm::mav_ctrl>(
+    "/fcu/control", 1);
 
   current_reference_publisher_ = nh_.advertise<trajectory_msgs::MultiDOFJointTrajectory>(
       "command/current_reference", 1);
@@ -62,6 +66,13 @@ void StateMachineDefinition::PublishAttitudeCommand (
   msg->header.stamp = ros::Time::now();  // TODO(acmarkus): get from msg
   mav_msgs::msgRollPitchYawrateThrustFromEigen(command, msg.get());
   command_publisher_.publish(msg);
+
+  asctec_hl_comm::mav_ctrl asctec_cmd;
+  asctec_cmd.type = asctec_hl_comm::mav_ctrl::acceleration;
+  asctec_cmd.x = msg->pitch;
+  asctec_cmd.y = msg->roll;
+  asctec_cmd.z = msg->thrust.z;
+  asctec_cmd.yaw = msg->yaw_rate;
 }
 
 void StateMachineDefinition::PublishStateInfo(const std::string& info)

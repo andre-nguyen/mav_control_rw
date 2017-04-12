@@ -207,7 +207,7 @@ private:
   bool use_rc_teleop_;
   std::string reference_frame_id_;
   std::shared_ptr<PositionControllerInterface> controller_;
-  ros::Publisher command_publisher_;
+  ros::Publisher command_publisher_, command_publisher_asctec_;
   ros::Publisher state_info_publisher_;
 
   tf::TransformBroadcaster transform_broadcaster_;
